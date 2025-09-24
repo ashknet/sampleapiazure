@@ -76,7 +76,7 @@ public class Document : BaseEntity
         ConfidentialityCode = confidentialityCode;
     }
     
-    public void Finalize()
+    public void FinalizeDocument()
     {
         Status = "Final";
     }

@@ -1,7 +1,7 @@
 using Emr.Application;
 using Emr.Infrastructure;
 using Emr.Infrastructure.Persistence;
-using Microsoft.AspNetCore.Mvc;
+using Asp.Versioning;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using AspNetCoreRateLimit;
@@ -24,11 +24,19 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddHttpContextAccessor();
 
 // Configure API versioning
-builder.Services.AddApiVersioning(config =>
+builder.Services.AddApiVersioning(options =>
 {
-    config.DefaultApiVersion = new ApiVersion(1, 0);
-    config.AssumeDefaultVersionWhenUnspecified = true;
-    config.ReportApiVersions = true;
+    options.DefaultApiVersion = new ApiVersion(1, 0);
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ReportApiVersions = true;
+    options.ApiVersionReader = ApiVersionReader.Combine(
+        new UrlSegmentApiVersionReader(),
+        new HeaderApiVersionReader("X-Api-Version")
+    );
+}).AddApiExplorer(options =>
+{
+    options.GroupNameFormat = "'v'VVV";
+    options.SubstituteApiVersionInUrl = true;
 });
 
 // Configure rate limiting
@@ -95,8 +103,8 @@ builder.Services.AddCors(options =>
 });
 
 // Health checks
-builder.Services.AddHealthChecks()
-    .AddDbContextCheck<ApplicationDbContext>();
+builder.Services.AddHealthChecks();
+    // TODO: Add .AddDbContextCheck<ApplicationDbContext>() after installing Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore
 
 var app = builder.Build();
 

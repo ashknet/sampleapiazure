@@ -25,32 +25,32 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
         _auditableEntitySaveChangesInterceptor = auditableEntitySaveChangesInterceptor;
     }
 
-    public DbSet<Organization> Organizations => Set<Organization>();
-    public DbSet<Location> Locations => Set<Location>();
-    public DbSet<Department> Departments => Set<Department>();
-    public DbSet<User> Users => Set<User>();
-    public DbSet<Role> Roles => Set<Role>();
-    public DbSet<Permission> Permissions => Set<Permission>();
-    public DbSet<UserRole> UserRoles => Set<UserRole>();
-    public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
-    public DbSet<UserOrganizationAssignment> UserOrganizationAssignments => Set<UserOrganizationAssignment>();
-    public DbSet<Patient> Patients => Set<Patient>();
-    public DbSet<PatientIdentifier> PatientIdentifiers => Set<PatientIdentifier>();
-    public DbSet<PatientContact> PatientContacts => Set<PatientContact>();
-    public DbSet<PatientAddress> PatientAddresses => Set<PatientAddress>();
-    public DbSet<Payer> Payers => Set<Payer>();
-    public DbSet<Plan> Plans => Set<Plan>();
-    public DbSet<Coverage> Coverages => Set<Coverage>();
-    public DbSet<Consent> Consents => Set<Consent>();
-    public DbSet<ConsentEvent> ConsentEvents => Set<ConsentEvent>();
-    public DbSet<ShareToken> ShareTokens => Set<ShareToken>();
-    public DbSet<ConnectionLink> ConnectionLinks => Set<ConnectionLink>();
-    public DbSet<Document> Documents => Set<Document>();
-    public DbSet<DocumentShare> DocumentShares => Set<DocumentShare>();
-    public DbSet<Appointment> Appointments => Set<Appointment>();
-    public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
-    public DbSet<IntegrationEndpoint> IntegrationEndpoints => Set<IntegrationEndpoint>();
-    public DbSet<NotificationPreference> NotificationPreferences => Set<NotificationPreference>();
+    public DbSet<Organization> Organizations { get; set; } = null!;
+    public DbSet<Location> Locations { get; set; } = null!;
+    public DbSet<Department> Departments { get; set; } = null!;
+    public DbSet<User> Users { get; set; } = null!;
+    public DbSet<Role> Roles { get; set; } = null!;
+    public DbSet<Permission> Permissions { get; set; } = null!;
+    public DbSet<UserRole> UserRoles { get; set; } = null!;
+    public DbSet<RolePermission> RolePermissions { get; set; } = null!;
+    public DbSet<UserOrganizationAssignment> UserOrganizationAssignments { get; set; } = null!;
+    public DbSet<Patient> Patients { get; set; } = null!;
+    public DbSet<PatientIdentifier> PatientIdentifiers { get; set; } = null!;
+    public DbSet<PatientContact> PatientContacts { get; set; } = null!;
+    public DbSet<PatientAddress> PatientAddresses { get; set; } = null!;
+    public DbSet<Payer> Payers { get; set; } = null!;
+    public DbSet<Plan> Plans { get; set; } = null!;
+    public DbSet<Coverage> Coverages { get; set; } = null!;
+    public DbSet<Consent> Consents { get; set; } = null!;
+    public DbSet<ConsentEvent> ConsentEvents { get; set; } = null!;
+    public DbSet<ShareToken> ShareTokens { get; set; } = null!;
+    public DbSet<ConnectionLink> ConnectionLinks { get; set; } = null!;
+    public DbSet<Document> Documents { get; set; } = null!;
+    public DbSet<DocumentShare> DocumentShares { get; set; } = null!;
+    public DbSet<Appointment> Appointments { get; set; } = null!;
+    public DbSet<AuditLog> AuditLogs { get; set; } = null!;
+    public DbSet<IntegrationEndpoint> IntegrationEndpoints { get; set; } = null!;
+    public DbSet<NotificationPreference> NotificationPreferences { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

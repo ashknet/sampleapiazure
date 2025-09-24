@@ -33,7 +33,14 @@ public static class DependencyInjection
 
         // Authentication
         services.AddAuthentication()
-            .AddMicrosoftIdentityWebApi(configuration.GetSection("AzureAdB2C"));
+            .AddMicrosoftIdentityWebApi(options =>
+            {
+                configuration.Bind("AzureAdB2C", options);
+            },
+            options =>
+            {
+                configuration.Bind("AzureAdB2C", options);
+            });
 
         services.AddAuthorization(options =>
         {

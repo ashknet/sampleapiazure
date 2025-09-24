@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Emr.Application.Features.Consent.Commands;
 using Emr.Application.Features.Consent.Queries;
+using Asp.Versioning;
 
 namespace Emr.Api.Controllers;
 

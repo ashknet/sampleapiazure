@@ -42,7 +42,7 @@ public class BlobStorageService : IBlobStorageService
         return response.Value;
     }
 
-    public Task<string> GetSasTokenAsync(string blobUrl, TimeSpan expiry, BlobSasPermissions permissions, CancellationToken cancellationToken = default)
+    public Task<string> GetSasTokenAsync(string blobUrl, TimeSpan expiry, Application.Common.Interfaces.BlobSasPermissions permissions, CancellationToken cancellationToken = default)
     {
         var blobClient = new BlobClient(new Uri(blobUrl));
         
@@ -60,12 +60,15 @@ public class BlobStorageService : IBlobStorageService
         };
 
         // Map custom permissions to Azure permissions
-        if (permissions.HasFlag(BlobSasPermissions.Read))
-            sasBuilder.SetPermissions(BlobSasPermissions.Read);
-        if (permissions.HasFlag(BlobSasPermissions.Write))
-            sasBuilder.SetPermissions(BlobSasPermissions.Write);
-        if (permissions.HasFlag(BlobSasPermissions.Delete))
-            sasBuilder.SetPermissions(BlobSasPermissions.Delete);
+        var azurePermissions = (Azure.Storage.Sas.BlobSasPermissions)0; // Initialize with no permissions
+        if (permissions.HasFlag(Application.Common.Interfaces.BlobSasPermissions.Read))
+            azurePermissions |= Azure.Storage.Sas.BlobSasPermissions.Read;
+        if (permissions.HasFlag(Application.Common.Interfaces.BlobSasPermissions.Write))
+            azurePermissions |= Azure.Storage.Sas.BlobSasPermissions.Write | Azure.Storage.Sas.BlobSasPermissions.Create | Azure.Storage.Sas.BlobSasPermissions.Add;
+        if (permissions.HasFlag(Application.Common.Interfaces.BlobSasPermissions.Delete))
+            azurePermissions |= Azure.Storage.Sas.BlobSasPermissions.Delete;
+        
+        sasBuilder.SetPermissions(azurePermissions);
 
         return Task.FromResult(blobClient.GenerateSasUri(sasBuilder).ToString());
     }

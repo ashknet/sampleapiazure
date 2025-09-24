@@ -1,9 +1,11 @@
 using Hl7.Fhir.Model;
 using Hl7.Fhir.Rest;
+using Hl7.Fhir.Serialization;
 using Emr.Application.Common.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Task = System.Threading.Tasks.Task;
 
 namespace Emr.Infrastructure.Services;
 
@@ -26,8 +28,9 @@ public class FhirService : IFhirService
         var settings = new FhirClientSettings
         {
             PreferredFormat = ResourceFormat.Json,
-            ReturnFullResource = true,
-            Timeout = 30000 // 30 seconds
+            ReturnPreference = ReturnPreference.Representation,
+            Timeout = 30000, // 30 seconds in milliseconds
+            VerifyFhirVersion = false
         };
         
         _fhirClient = new FhirClient(_fhirServerUrl, settings);
