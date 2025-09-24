@@ -1,0 +1,6 @@
+@sampleapiazure_HostAddress = http://localhost:5064
+
+GET {{sampleapiazure_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
