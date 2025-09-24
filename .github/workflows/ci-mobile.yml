@@ -1,0 +1,105 @@
+name: CI - Mobile App
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'src/mobile/**'
+      - '.github/workflows/ci-mobile.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'src/mobile/**'
+      - '.github/workflows/ci-mobile.yml'
+
+env:
+  NODE_VERSION: '18.x'
+  PROJECT_PATH: './src/mobile'
+
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: ${{ env.PROJECT_PATH }}/package-lock.json
+    
+    - name: Setup Expo
+      uses: expo/expo-github-action@v8
+      with:
+        expo-version: latest
+        token: ${{ secrets.EXPO_TOKEN }}
+    
+    - name: Install dependencies
+      run: npm ci
+      working-directory: ${{ env.PROJECT_PATH }}
+    
+    - name: Run linting
+      run: npm run lint
+      working-directory: ${{ env.PROJECT_PATH }}
+    
+    - name: Run type checking
+      run: npx tsc --noEmit
+      working-directory: ${{ env.PROJECT_PATH }}
+    
+    - name: Run tests
+      run: npm test -- --coverage --watchAll=false
+      working-directory: ${{ env.PROJECT_PATH }}
+      env:
+        CI: true
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        directory: ${{ env.PROJECT_PATH }}/coverage
+        flags: mobile
+        name: mobile-coverage
+
+  build-preview:
+    name: Build Expo Preview
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    if: github.event_name == 'pull_request'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+    
+    - name: Setup Expo
+      uses: expo/expo-github-action@v8
+      with:
+        expo-version: latest
+        token: ${{ secrets.EXPO_TOKEN }}
+    
+    - name: Install dependencies
+      run: npm ci
+      working-directory: ${{ env.PROJECT_PATH }}
+    
+    - name: Create preview
+      run: expo publish --release-channel=pr-${{ github.event.pull_request.number }}
+      working-directory: ${{ env.PROJECT_PATH }}
+    
+    - name: Comment PR with preview link
+      uses: actions/github-script@v6
+      with:
+        script: |
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: '📱 Expo preview ready!\n\nOpen in Expo Go: `exp://exp.host/@${{ secrets.EXPO_USERNAME }}/emr-mobile?release-channel=pr-${{ github.event.pull_request.number }}`'
+          })

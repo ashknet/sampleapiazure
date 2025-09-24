@@ -1,0 +1,106 @@
+name: CI - Backend
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'src/api/**'
+      - '.github/workflows/ci-backend.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'src/api/**'
+      - '.github/workflows/ci-backend.yml'
+
+env:
+  DOTNET_VERSION: '8.0.x'
+  PROJECT_PATH: './src/api'
+
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+    
+    - name: Cache NuGet packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+    
+    - name: Restore dependencies
+      run: dotnet restore
+      working-directory: ${{ env.PROJECT_PATH }}
+    
+    - name: Build
+      run: dotnet build --no-restore --configuration Release
+      working-directory: ${{ env.PROJECT_PATH }}
+    
+    - name: Run tests
+      run: dotnet test --no-build --configuration Release --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage
+      working-directory: ${{ env.PROJECT_PATH }}
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        directory: ${{ env.PROJECT_PATH }}/coverage
+        flags: backend
+        name: backend-coverage
+    
+    - name: Run security scan
+      run: |
+        dotnet tool install --global security-scan
+        security-scan ${{ env.PROJECT_PATH }}/Emr.Api/Emr.Api.csproj
+      continue-on-error: true
+
+  code-analysis:
+    name: Code Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+    
+    - name: Run code analysis
+      run: |
+        dotnet tool install --global dotnet-format
+        dotnet format --verify-no-changes --verbosity diagnostic
+      working-directory: ${{ env.PROJECT_PATH }}
+
+  docker-build:
+    name: Docker Build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+    
+    - name: Build Docker image
+      uses: docker/build-push-action@v4
+      with:
+        context: ${{ env.PROJECT_PATH }}
+        file: ${{ env.PROJECT_PATH }}/Emr.Api/Dockerfile
+        push: false
+        tags: emr-api:${{ github.sha }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max

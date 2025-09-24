@@ -1,0 +1,78 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+*.cache
+*.log
+.vs/
+.vscode/
+.idea/
+*.DotSettings.user
+launchSettings.json
+
+# React/Node
+node_modules/
+dist/
+build/
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# React Native/Expo
+.expo/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+web-build/
+
+# Azure
+*.azurepublish
+*.publishsettings
+*.pubxml
+*.pubxml.user
+
+# Terraform/Bicep
+*.tfstate
+*.tfstate.*
+.terraform/
+*.tfvars
+!example.tfvars
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets
+*.pem
+*.pfx
+secrets/
+.env
+appsettings.Development.json
+appsettings.Production.json
+
+# Testing
+TestResults/
+coverage/
+*.coverage
+*.coveragexml
+.nyc_output/
+
+# Logs
+logs/
+*.log
+log.txt
+
+# IDE
+*.swp
+*.swo
+*~
