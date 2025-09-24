@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "sampleapiazure", "sampleapi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureSecureAPI", "..\AzureSecureAPI\AzureSecureAPI.csproj", "{9D5ED791-693B-5FD6-7350-9E56400C5793}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntraApi", "..\EntraApi\EntraApi.csproj", "{21E7D0A1-8B8D-1BE8-CEC0-C04E01E00744}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{9D5ED791-693B-5FD6-7350-9E56400C5793}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9D5ED791-693B-5FD6-7350-9E56400C5793}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9D5ED791-693B-5FD6-7350-9E56400C5793}.Release|Any CPU.Build.0 = Release|Any CPU
+		{21E7D0A1-8B8D-1BE8-CEC0-C04E01E00744}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{21E7D0A1-8B8D-1BE8-CEC0-C04E01E00744}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{21E7D0A1-8B8D-1BE8-CEC0-C04E01E00744}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{21E7D0A1-8B8D-1BE8-CEC0-C04E01E00744}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
