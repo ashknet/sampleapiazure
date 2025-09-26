@@ -33,7 +33,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.Property(u => u.UserType)
             .IsRequired()
-            .HasMaxLength(20);
+            .HasMaxLength(50);
 
         builder.Property(u => u.PhoneNumber)
             .HasMaxLength(20);
@@ -47,15 +47,15 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(u => u.Specialty)
             .HasMaxLength(100);
 
+        builder.Property(u => u.IsActive)
+            .IsRequired()
+            .HasDefaultValue(true);
+
         builder.HasIndex(u => u.ExternalId)
             .IsUnique();
 
         builder.HasIndex(u => u.Email)
             .IsUnique();
-
-        builder.HasIndex(u => u.NpiNumber)
-            .IsUnique()
-            .HasFilter("[NpiNumber] IS NOT NULL");
 
         builder.HasQueryFilter(u => !u.IsDeleted);
 

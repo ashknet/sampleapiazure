@@ -36,6 +36,10 @@ public class OrganizationConfiguration : IEntityTypeConfiguration<Organization>
         builder.Property(o => o.Website)
             .HasMaxLength(255);
 
+        builder.Property(o => o.IsActive)
+            .IsRequired()
+            .HasDefaultValue(true);
+
         builder.HasIndex(o => o.TaxId)
             .IsUnique();
 
