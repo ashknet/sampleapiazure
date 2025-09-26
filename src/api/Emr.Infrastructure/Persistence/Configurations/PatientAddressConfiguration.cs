@@ -48,6 +48,10 @@ public class PatientAddressConfiguration : IEntityTypeConfiguration<PatientAddre
                 .HasMaxLength(3);
         });
 
+        builder.Property(pa => pa.IsActive)
+            .IsRequired()
+            .HasDefaultValue(true);
+
         builder.HasIndex(pa => new { pa.PatientId, pa.IsPrimary })
             .HasFilter("[IsPrimary] = 1");
 
