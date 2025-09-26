@@ -56,6 +56,7 @@ A production-ready US EMR system built with .NET 8, React, React Native, and Azu
 - Docker Desktop
 - Azure CLI
 - Visual Studio 2022 or VS Code
+- SQL Server 2019+ or SQL Server LocalDB (for development)
 
 ### Local Development Setup
 
@@ -65,22 +66,34 @@ A production-ready US EMR system built with .NET 8, React, React Native, and Azu
    cd emr-system
    ```
 
-2. **Backend Setup**
+2. **Database Setup**
    ```bash
+   # Option 1: Use PowerShell script (recommended for Windows)
+   cd src/database/Emr.Database
+   .\Deploy-Database.ps1
+   
+   # Option 2: Use SQL script in SSMS/Azure Data Studio
+   # Open and execute src/database/Emr.Database/Deploy-Database.sql
+   
+   # Option 3: Use only Entity Framework migrations
    cd src/api
-   
-   # Install Entity Framework tools
    dotnet tool install --global dotnet-ef
-   
-   # Set up local database
    dotnet ef database update -p Emr.Infrastructure -s Emr.Api
+   ```
+
+3. **Backend Setup**
+   ```bash
+   cd src/api/Emr.Api
+   
+   # Update appsettings.Development.json:
+   # - Set "UseInMemoryDatabase": false for SQL Server
+   # - Update ConnectionStrings:DefaultConnection if needed
    
    # Run the API
-   cd Emr.Api
    dotnet run
    ```
 
-3. **Configure Secrets**
+4. **Configure Secrets**
    ```bash
    # In src/api/Emr.Api directory
    dotnet user-secrets init
@@ -99,7 +112,7 @@ A production-ready US EMR system built with .NET 8, React, React Native, and Azu
    dotnet user-secrets set "ConnectionStrings:AzureStorage" "<connection-string>"
    ```
 
-4. **Web App Setup**
+5. **Web App Setup**
    ```bash
    cd src/web
    npm install
@@ -112,7 +125,7 @@ A production-ready US EMR system built with .NET 8, React, React Native, and Azu
    npm start
    ```
 
-5. **Mobile App Setup**
+6. **Mobile App Setup**
    ```bash
    cd src/mobile
    npm install
