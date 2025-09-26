@@ -17,11 +17,11 @@ public class PatientConfiguration : IEntityTypeConfiguration<Patient>
             .HasMaxLength(50);
 
         builder.Property(p => p.SocialSecurityNumber)
-            .HasMaxLength(11);
+            .HasMaxLength(20);
 
         builder.Property(p => p.Gender)
             .IsRequired()
-            .HasMaxLength(20);
+            .HasMaxLength(10);
 
         builder.Property(p => p.PreferredLanguage)
             .HasMaxLength(10);
@@ -38,13 +38,21 @@ public class PatientConfiguration : IEntityTypeConfiguration<Patient>
         builder.Property(p => p.Religion)
             .HasMaxLength(50);
 
+        builder.Property(p => p.IsDeceased)
+            .IsRequired()
+            .HasDefaultValue(false);
+
         builder.HasIndex(p => p.MedicalRecordNumber)
             .IsUnique();
 
-        builder.HasIndex(p => p.SocialSecurityNumber)
-            .IsUnique()
-            .HasFilter("[SocialSecurityNumber] IS NOT NULL");
+        builder.HasIndex(p => p.UserId);
 
         builder.HasQueryFilter(p => !p.IsDeleted);
+
+        // Relationships
+        builder.HasOne(p => p.User)
+            .WithOne(u => u.PatientProfile)
+            .HasForeignKey<Patient>(p => p.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

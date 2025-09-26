@@ -38,6 +38,7 @@ CREATE TABLE [dbo].[Locations]
     [Code] NVARCHAR(50) NOT NULL,
     [Phone] NVARCHAR(20) NULL,
     [Fax] NVARCHAR(20) NULL,
+    [IsActive] BIT NOT NULL DEFAULT 1,
     [Street1] NVARCHAR(200) NOT NULL,
     [Street2] NVARCHAR(200) NULL,
     [City] NVARCHAR(100) NOT NULL,
@@ -68,6 +69,7 @@ CREATE TABLE [dbo].[Departments]
     [Name] NVARCHAR(200) NOT NULL,
     [Code] NVARCHAR(50) NOT NULL,
     [Specialty] NVARCHAR(100) NULL,
+    [IsActive] BIT NOT NULL DEFAULT 1,
     [CreatedAt] DATETIME2 NOT NULL,
     [CreatedBy] NVARCHAR(255) NOT NULL,
     [UpdatedAt] DATETIME2 NULL,
@@ -94,9 +96,9 @@ CREATE TABLE [dbo].[Users]
     [LastName] NVARCHAR(100) NOT NULL,
     [MiddleName] NVARCHAR(100) NULL,
     [UserType] NVARCHAR(50) NOT NULL,
-    [Phone] NVARCHAR(20) NULL,
+    [PhoneNumber] NVARCHAR(20) NULL,
     [DateOfBirth] DATE NULL,
-    [NPI] NVARCHAR(10) NULL,
+    [NpiNumber] NVARCHAR(10) NULL,
     [LicenseNumber] NVARCHAR(50) NULL,
     [Specialty] NVARCHAR(100) NULL,
     [IsActive] BIT NOT NULL DEFAULT 1,
@@ -168,6 +170,7 @@ CREATE TABLE [dbo].[UserRoles]
     [UserId] UNIQUEIDENTIFIER NOT NULL,
     [RoleId] UNIQUEIDENTIFIER NOT NULL,
     [OrganizationId] UNIQUEIDENTIFIER NULL,
+    [ExpiresAt] DATETIME2 NULL,
     [CreatedAt] DATETIME2 NOT NULL,
     [CreatedBy] NVARCHAR(255) NOT NULL,
     [UpdatedAt] DATETIME2 NULL,
@@ -213,6 +216,7 @@ CREATE TABLE [dbo].[UserOrganizationAssignments]
     [Id] UNIQUEIDENTIFIER NOT NULL,
     [UserId] UNIQUEIDENTIFIER NOT NULL,
     [OrganizationId] UNIQUEIDENTIFIER NOT NULL,
+    [DepartmentId] UNIQUEIDENTIFIER NULL,
     [StartDate] DATETIME2 NOT NULL,
     [EndDate] DATETIME2 NULL,
     [IsPrimary] BIT NOT NULL DEFAULT 0,
@@ -225,7 +229,8 @@ CREATE TABLE [dbo].[UserOrganizationAssignments]
     [DeletedBy] NVARCHAR(255) NULL,
     CONSTRAINT [PK_UserOrganizationAssignments] PRIMARY KEY CLUSTERED ([Id] ASC),
     CONSTRAINT [FK_UserOrganizationAssignments_Users] FOREIGN KEY ([UserId]) REFERENCES [dbo].[Users] ([Id]),
-    CONSTRAINT [FK_UserOrganizationAssignments_Organizations] FOREIGN KEY ([OrganizationId]) REFERENCES [dbo].[Organizations] ([Id])
+    CONSTRAINT [FK_UserOrganizationAssignments_Organizations] FOREIGN KEY ([OrganizationId]) REFERENCES [dbo].[Organizations] ([Id]),
+    CONSTRAINT [FK_UserOrganizationAssignments_Departments] FOREIGN KEY ([DepartmentId]) REFERENCES [dbo].[Departments] ([Id])
 );
 END
 GO
@@ -237,13 +242,15 @@ CREATE TABLE [dbo].[Patients]
 (
     [Id] UNIQUEIDENTIFIER NOT NULL,
     [UserId] UNIQUEIDENTIFIER NOT NULL,
-    [MRN] NVARCHAR(50) NOT NULL,
+    [MedicalRecordNumber] NVARCHAR(50) NOT NULL,
+    [SocialSecurityNumber] NVARCHAR(20) NULL,
     [Gender] NVARCHAR(10) NOT NULL,
     [PreferredLanguage] NVARCHAR(10) NULL,
     [Race] NVARCHAR(50) NULL,
     [Ethnicity] NVARCHAR(50) NULL,
     [MaritalStatus] NVARCHAR(20) NULL,
     [Religion] NVARCHAR(50) NULL,
+    [IsDeceased] BIT NOT NULL DEFAULT 0,
     [DeceasedDate] DATETIME2 NULL,
     [CreatedAt] DATETIME2 NOT NULL,
     [CreatedBy] NVARCHAR(255) NOT NULL,
@@ -270,6 +277,7 @@ CREATE TABLE [dbo].[PatientIdentifiers]
     [Issuer] NVARCHAR(200) NULL,
     [StartDate] DATE NULL,
     [EndDate] DATE NULL,
+    [IsActive] BIT NOT NULL DEFAULT 1,
     [CreatedAt] DATETIME2 NOT NULL,
     [CreatedBy] NVARCHAR(255) NOT NULL,
     [UpdatedAt] DATETIME2 NULL,
@@ -296,6 +304,7 @@ CREATE TABLE [dbo].[PatientContacts]
     [Phone] NVARCHAR(20) NULL,
     [Email] NVARCHAR(255) NULL,
     [IsEmergencyContact] BIT NOT NULL DEFAULT 0,
+    [IsActive] BIT NOT NULL DEFAULT 1,
     [CreatedAt] DATETIME2 NOT NULL,
     [CreatedBy] NVARCHAR(255) NOT NULL,
     [UpdatedAt] DATETIME2 NULL,
@@ -324,6 +333,7 @@ CREATE TABLE [dbo].[PatientAddresses]
     [PostalCode] NVARCHAR(10) NOT NULL,
     [Country] NVARCHAR(3) NOT NULL,
     [IsPrimary] BIT NOT NULL DEFAULT 0,
+    [IsActive] BIT NOT NULL DEFAULT 1,
     [CreatedAt] DATETIME2 NOT NULL,
     [CreatedBy] NVARCHAR(255) NOT NULL,
     [UpdatedAt] DATETIME2 NULL,
@@ -347,8 +357,8 @@ CREATE TABLE [dbo].[Payers]
     [Code] NVARCHAR(50) NOT NULL,
     [Type] NVARCHAR(50) NOT NULL,
     [PayerId] NVARCHAR(50) NULL,
-    [Phone] NVARCHAR(20) NULL,
-    [Email] NVARCHAR(255) NULL,
+    [ContactPhone] NVARCHAR(20) NULL,
+    [ContactEmail] NVARCHAR(255) NULL,
     [Website] NVARCHAR(500) NULL,
     [IsActive] BIT NOT NULL DEFAULT 1,
     [CreatedAt] DATETIME2 NOT NULL,
@@ -374,7 +384,8 @@ CREATE TABLE [dbo].[Plans]
     [Code] NVARCHAR(50) NOT NULL,
     [Type] NVARCHAR(50) NOT NULL,
     [GroupNumber] NVARCHAR(50) NULL,
-    [RequiresAuthorization] BIT NOT NULL DEFAULT 0,
+    [RequiresReferral] BIT NOT NULL DEFAULT 0,
+    [RequiresPreAuthorization] BIT NOT NULL DEFAULT 0,
     [IsActive] BIT NOT NULL DEFAULT 1,
     [CreatedAt] DATETIME2 NOT NULL,
     [CreatedBy] NVARCHAR(255) NOT NULL,
@@ -403,6 +414,7 @@ CREATE TABLE [dbo].[Coverages]
     [StartDate] DATE NOT NULL,
     [EndDate] DATE NULL,
     [Status] NVARCHAR(20) NOT NULL,
+    [IsActive] BIT NOT NULL DEFAULT 1,
     [CreatedAt] DATETIME2 NOT NULL,
     [CreatedBy] NVARCHAR(255) NOT NULL,
     [UpdatedAt] DATETIME2 NULL,
@@ -424,18 +436,16 @@ CREATE TABLE [dbo].[Consents]
 (
     [Id] UNIQUEIDENTIFIER NOT NULL,
     [PatientId] UNIQUEIDENTIFIER NOT NULL,
+    [OrganizationId] UNIQUEIDENTIFIER NULL,
     [Type] NVARCHAR(50) NOT NULL,
-    [Purpose] NVARCHAR(200) NOT NULL,
-    [Scopes] NVARCHAR(MAX) NOT NULL,
     [Status] NVARCHAR(20) NOT NULL,
-    [StartDate] DATETIME2 NOT NULL,
-    [EndDate] DATETIME2 NULL,
-    [GrantedBy] NVARCHAR(255) NOT NULL,
-    [GrantedAt] DATETIME2 NOT NULL,
+    [ConsentDate] DATETIME2 NOT NULL,
+    [ExpirationDate] DATETIME2 NULL,
+    [PurposeOfUse] NVARCHAR(200) NULL,
+    [ConsentingParty] NVARCHAR(255) NULL,
     [RevokedBy] NVARCHAR(255) NULL,
-    [RevokedAt] DATETIME2 NULL,
-    [RevocationReason] NVARCHAR(500) NULL,
-    [SourceSystem] NVARCHAR(100) NULL,
+    [RevokedDate] DATETIME2 NULL,
+    [ScopeJson] NVARCHAR(MAX) NOT NULL,
     [CreatedAt] DATETIME2 NOT NULL,
     [CreatedBy] NVARCHAR(255) NOT NULL,
     [UpdatedAt] DATETIME2 NULL,
@@ -444,7 +454,8 @@ CREATE TABLE [dbo].[Consents]
     [DeletedAt] DATETIME2 NULL,
     [DeletedBy] NVARCHAR(255) NULL,
     CONSTRAINT [PK_Consents] PRIMARY KEY CLUSTERED ([Id] ASC),
-    CONSTRAINT [FK_Consents_Patients] FOREIGN KEY ([PatientId]) REFERENCES [dbo].[Patients] ([Id])
+    CONSTRAINT [FK_Consents_Patients] FOREIGN KEY ([PatientId]) REFERENCES [dbo].[Patients] ([Id]),
+    CONSTRAINT [FK_Consents_Organizations] FOREIGN KEY ([OrganizationId]) REFERENCES [dbo].[Organizations] ([Id])
 );
 END
 GO
@@ -457,8 +468,9 @@ CREATE TABLE [dbo].[ConsentEvents]
     [Id] UNIQUEIDENTIFIER NOT NULL,
     [ConsentId] UNIQUEIDENTIFIER NOT NULL,
     [EventType] NVARCHAR(50) NOT NULL,
-    [EventData] NVARCHAR(MAX) NULL,
-    [PerformedBy] NVARCHAR(255) NOT NULL,
+    [Description] NVARCHAR(500) NOT NULL,
+    [PerformedBy] NVARCHAR(255) NULL,
+    [OccurredAt] DATETIME2 NOT NULL,
     [CreatedAt] DATETIME2 NOT NULL,
     [CreatedBy] NVARCHAR(255) NOT NULL,
     [UpdatedAt] DATETIME2 NULL,
@@ -478,14 +490,18 @@ BEGIN
 CREATE TABLE [dbo].[ShareTokens]
 (
     [Id] UNIQUEIDENTIFIER NOT NULL,
-    [ConsentId] UNIQUEIDENTIFIER NOT NULL,
-    [RequestingOrganizationId] UNIQUEIDENTIFIER NOT NULL,
-    [Token] NVARCHAR(500) NOT NULL,
-    [Scopes] NVARCHAR(MAX) NOT NULL,
+    [PatientId] UNIQUEIDENTIFIER NULL,
+    [OrganizationId] UNIQUEIDENTIFIER NOT NULL,
+    [Code] NVARCHAR(10) NOT NULL,
+    [Type] NVARCHAR(20) NOT NULL,
     [Status] NVARCHAR(20) NOT NULL,
     [ExpiresAt] DATETIME2 NOT NULL,
-    [UsedAt] DATETIME2 NULL,
-    [UsedBy] NVARCHAR(255) NULL,
+    [RequestedScopes] NVARCHAR(MAX) NULL,
+    [AuthorizedScopes] NVARCHAR(MAX) NULL,
+    [AuthorizedAt] DATETIME2 NULL,
+    [AuthorizedBy] NVARCHAR(255) NULL,
+    [LastAccessedAt] DATETIME2 NULL,
+    [AccessCount] INT NOT NULL DEFAULT 0,
     [CreatedAt] DATETIME2 NOT NULL,
     [CreatedBy] NVARCHAR(255) NOT NULL,
     [UpdatedAt] DATETIME2 NULL,
@@ -494,8 +510,8 @@ CREATE TABLE [dbo].[ShareTokens]
     [DeletedAt] DATETIME2 NULL,
     [DeletedBy] NVARCHAR(255) NULL,
     CONSTRAINT [PK_ShareTokens] PRIMARY KEY CLUSTERED ([Id] ASC),
-    CONSTRAINT [FK_ShareTokens_Consents] FOREIGN KEY ([ConsentId]) REFERENCES [dbo].[Consents] ([Id]),
-    CONSTRAINT [FK_ShareTokens_Organizations] FOREIGN KEY ([RequestingOrganizationId]) REFERENCES [dbo].[Organizations] ([Id])
+    CONSTRAINT [FK_ShareTokens_Patients] FOREIGN KEY ([PatientId]) REFERENCES [dbo].[Patients] ([Id]),
+    CONSTRAINT [FK_ShareTokens_Organizations] FOREIGN KEY ([OrganizationId]) REFERENCES [dbo].[Organizations] ([Id])
 );
 END
 GO
@@ -506,15 +522,13 @@ BEGIN
 CREATE TABLE [dbo].[ConnectionLinks]
 (
     [Id] UNIQUEIDENTIFIER NOT NULL,
-    [Code] NVARCHAR(10) NOT NULL,
-    [OrganizationId] UNIQUEIDENTIFIER NOT NULL,
-    [RequestedScopes] NVARCHAR(MAX) NOT NULL,
-    [Purpose] NVARCHAR(500) NOT NULL,
-    [Status] NVARCHAR(20) NOT NULL,
+    [ShareTokenId] UNIQUEIDENTIFIER NOT NULL,
+    [AccessToken] NVARCHAR(500) NOT NULL,
+    [IssuedAt] DATETIME2 NOT NULL,
     [ExpiresAt] DATETIME2 NOT NULL,
-    [CreatedByUserId] UNIQUEIDENTIFIER NOT NULL,
-    [AuthorizedByPatientId] UNIQUEIDENTIFIER NULL,
-    [AuthorizedAt] DATETIME2 NULL,
+    [IpAddress] NVARCHAR(50) NULL,
+    [UserAgent] NVARCHAR(500) NULL,
+    [IsRevoked] BIT NOT NULL DEFAULT 0,
     [CreatedAt] DATETIME2 NOT NULL,
     [CreatedBy] NVARCHAR(255) NOT NULL,
     [UpdatedAt] DATETIME2 NULL,
@@ -523,9 +537,7 @@ CREATE TABLE [dbo].[ConnectionLinks]
     [DeletedAt] DATETIME2 NULL,
     [DeletedBy] NVARCHAR(255) NULL,
     CONSTRAINT [PK_ConnectionLinks] PRIMARY KEY CLUSTERED ([Id] ASC),
-    CONSTRAINT [FK_ConnectionLinks_Organizations] FOREIGN KEY ([OrganizationId]) REFERENCES [dbo].[Organizations] ([Id]),
-    CONSTRAINT [FK_ConnectionLinks_Users] FOREIGN KEY ([CreatedByUserId]) REFERENCES [dbo].[Users] ([Id]),
-    CONSTRAINT [FK_ConnectionLinks_Patients] FOREIGN KEY ([AuthorizedByPatientId]) REFERENCES [dbo].[Patients] ([Id])
+    CONSTRAINT [FK_ConnectionLinks_ShareTokens] FOREIGN KEY ([ShareTokenId]) REFERENCES [dbo].[ShareTokens] ([Id])
 );
 END
 GO
@@ -536,22 +548,23 @@ BEGIN
 CREATE TABLE [dbo].[Documents]
 (
     [Id] UNIQUEIDENTIFIER NOT NULL,
-    [PatientId] UNIQUEIDENTIFIER NOT NULL,
+    [PatientId] UNIQUEIDENTIFIER NULL,
+    [EncounterId] UNIQUEIDENTIFIER NULL,
+    [UploadedByUserId] UNIQUEIDENTIFIER NOT NULL,
     [OrganizationId] UNIQUEIDENTIFIER NOT NULL,
-    [Type] NVARCHAR(50) NOT NULL,
-    [Status] NVARCHAR(20) NOT NULL,
     [Title] NVARCHAR(500) NOT NULL,
-    [Description] NVARCHAR(MAX) NULL,
+    [DocumentType] NVARCHAR(50) NOT NULL,
+    [Category] NVARCHAR(100) NULL,
     [FileName] NVARCHAR(500) NOT NULL,
-    [FileSize] BIGINT NOT NULL,
-    [MimeType] NVARCHAR(100) NOT NULL,
-    [StorageUrl] NVARCHAR(MAX) NOT NULL,
+    [ContentType] NVARCHAR(100) NOT NULL,
+    [FileSizeBytes] BIGINT NOT NULL,
+    [BlobStorageUrl] NVARCHAR(MAX) NOT NULL,
     [Checksum] NVARCHAR(100) NULL,
+    [DocumentDate] DATETIME2 NOT NULL,
     [IsConfidential] BIT NOT NULL DEFAULT 0,
     [ConfidentialityCode] NVARCHAR(50) NULL,
-    [AuthorId] UNIQUEIDENTIFIER NULL,
-    [DocumentDate] DATETIME2 NOT NULL,
-    [FhirDocumentReference] NVARCHAR(500) NULL,
+    [Status] NVARCHAR(20) NOT NULL,
+    [FhirDocumentReferenceId] NVARCHAR(500) NULL,
     [CreatedAt] DATETIME2 NOT NULL,
     [CreatedBy] NVARCHAR(255) NOT NULL,
     [UpdatedAt] DATETIME2 NULL,
@@ -562,7 +575,7 @@ CREATE TABLE [dbo].[Documents]
     CONSTRAINT [PK_Documents] PRIMARY KEY CLUSTERED ([Id] ASC),
     CONSTRAINT [FK_Documents_Patients] FOREIGN KEY ([PatientId]) REFERENCES [dbo].[Patients] ([Id]),
     CONSTRAINT [FK_Documents_Organizations] FOREIGN KEY ([OrganizationId]) REFERENCES [dbo].[Organizations] ([Id]),
-    CONSTRAINT [FK_Documents_Users] FOREIGN KEY ([AuthorId]) REFERENCES [dbo].[Users] ([Id])
+    CONSTRAINT [FK_Documents_Users] FOREIGN KEY ([UploadedByUserId]) REFERENCES [dbo].[Users] ([Id])
 );
 END
 GO
@@ -575,9 +588,14 @@ CREATE TABLE [dbo].[DocumentShares]
     [Id] UNIQUEIDENTIFIER NOT NULL,
     [DocumentId] UNIQUEIDENTIFIER NOT NULL,
     [SharedWithUserId] UNIQUEIDENTIFIER NOT NULL,
-    [ShareType] NVARCHAR(20) NOT NULL,
+    [SharedByUserId] UNIQUEIDENTIFIER NOT NULL,
+    [SharedAt] DATETIME2 NOT NULL,
     [ExpiresAt] DATETIME2 NULL,
-    [AccessedAt] DATETIME2 NULL,
+    [Purpose] NVARCHAR(500) NULL,
+    [CanDownload] BIT NOT NULL DEFAULT 1,
+    [CanPrint] BIT NOT NULL DEFAULT 1,
+    [LastAccessedAt] DATETIME2 NULL,
+    [AccessCount] INT NOT NULL DEFAULT 0,
     [CreatedAt] DATETIME2 NOT NULL,
     [CreatedBy] NVARCHAR(255) NOT NULL,
     [UpdatedAt] DATETIME2 NULL,
@@ -587,7 +605,8 @@ CREATE TABLE [dbo].[DocumentShares]
     [DeletedBy] NVARCHAR(255) NULL,
     CONSTRAINT [PK_DocumentShares] PRIMARY KEY CLUSTERED ([Id] ASC),
     CONSTRAINT [FK_DocumentShares_Documents] FOREIGN KEY ([DocumentId]) REFERENCES [dbo].[Documents] ([Id]),
-    CONSTRAINT [FK_DocumentShares_Users] FOREIGN KEY ([SharedWithUserId]) REFERENCES [dbo].[Users] ([Id])
+    CONSTRAINT [FK_DocumentShares_Users_SharedWith] FOREIGN KEY ([SharedWithUserId]) REFERENCES [dbo].[Users] ([Id]),
+    CONSTRAINT [FK_DocumentShares_Users_SharedBy] FOREIGN KEY ([SharedByUserId]) REFERENCES [dbo].[Users] ([Id])
 );
 END
 GO
@@ -600,17 +619,20 @@ CREATE TABLE [dbo].[Appointments]
     [Id] UNIQUEIDENTIFIER NOT NULL,
     [PatientId] UNIQUEIDENTIFIER NOT NULL,
     [OrganizationId] UNIQUEIDENTIFIER NOT NULL,
-    [LocationId] UNIQUEIDENTIFIER NOT NULL,
+    [LocationId] UNIQUEIDENTIFIER NULL,
     [DepartmentId] UNIQUEIDENTIFIER NULL,
     [ProviderId] UNIQUEIDENTIFIER NULL,
-    [Type] NVARCHAR(50) NOT NULL,
+    [AppointmentType] NVARCHAR(50) NOT NULL,
     [Status] NVARCHAR(20) NOT NULL,
-    [StartTime] DATETIME2 NOT NULL,
-    [EndTime] DATETIME2 NOT NULL,
+    [StartDateTime] DATETIME2 NOT NULL,
+    [EndDateTime] DATETIME2 NOT NULL,
     [Reason] NVARCHAR(500) NULL,
     [Notes] NVARCHAR(MAX) NULL,
-    [ConfirmedAt] DATETIME2 NULL,
-    [CheckedInAt] DATETIME2 NULL,
+    [IsVirtual] BIT NOT NULL DEFAULT 0,
+    [VirtualMeetingUrl] NVARCHAR(500) NULL,
+    [CheckInTime] DATETIME2 NULL,
+    [CheckOutTime] DATETIME2 NULL,
+    [CancellationReason] NVARCHAR(500) NULL,
     [CreatedAt] DATETIME2 NOT NULL,
     [CreatedBy] NVARCHAR(255) NOT NULL,
     [UpdatedAt] DATETIME2 NULL,
@@ -635,19 +657,21 @@ CREATE TABLE [dbo].[AuditLogs]
 (
     [Id] UNIQUEIDENTIFIER NOT NULL,
     [UserId] NVARCHAR(255) NOT NULL,
-    [UserEmail] NVARCHAR(255) NULL,
-    [OrganizationId] UNIQUEIDENTIFIER NULL,
+    [UserName] NVARCHAR(255) NOT NULL,
+    [UserRole] NVARCHAR(100) NOT NULL,
     [Action] NVARCHAR(100) NOT NULL,
-    [EntityType] NVARCHAR(100) NOT NULL,
-    [EntityId] NVARCHAR(255) NOT NULL,
-    [OldValues] NVARCHAR(MAX) NULL,
-    [NewValues] NVARCHAR(MAX) NULL,
-    [IpAddress] NVARCHAR(50) NULL,
+    [Resource] NVARCHAR(100) NOT NULL,
+    [ResourceId] NVARCHAR(255) NOT NULL,
+    [PatientId] NVARCHAR(255) NULL,
+    [OrganizationId] NVARCHAR(255) NULL,
+    [Timestamp] DATETIME2 NOT NULL,
+    [IpAddress] NVARCHAR(50) NOT NULL,
     [UserAgent] NVARCHAR(500) NULL,
     [PurposeOfUse] NVARCHAR(200) NULL,
-    [ConsentId] UNIQUEIDENTIFIER NULL,
-    [Timestamp] DATETIME2 NOT NULL,
-    [CorrelationId] NVARCHAR(100) NULL,
+    [ConsentId] NVARCHAR(255) NULL,
+    [Success] BIT NOT NULL DEFAULT 1,
+    [FailureReason] NVARCHAR(500) NULL,
+    [AdditionalData] NVARCHAR(MAX) NULL,
     [CreatedAt] DATETIME2 NOT NULL,
     [CreatedBy] NVARCHAR(255) NOT NULL,
     [UpdatedAt] DATETIME2 NULL,
@@ -669,12 +693,14 @@ CREATE TABLE [dbo].[IntegrationEndpoints]
     [OrganizationId] UNIQUEIDENTIFIER NOT NULL,
     [Name] NVARCHAR(200) NOT NULL,
     [Type] NVARCHAR(50) NOT NULL,
-    [Url] NVARCHAR(500) NOT NULL,
-    [AuthType] NVARCHAR(50) NOT NULL,
-    [Configuration] NVARCHAR(MAX) NULL,
+    [Direction] NVARCHAR(50) NOT NULL,
+    [EndpointUrl] NVARCHAR(500) NOT NULL,
+    [AuthType] NVARCHAR(50) NULL,
+    [ConfigurationJson] NVARCHAR(MAX) NULL,
     [IsActive] BIT NOT NULL DEFAULT 1,
-    [LastTestAt] DATETIME2 NULL,
-    [LastTestStatus] NVARCHAR(50) NULL,
+    [LastSuccessfulConnection] DATETIME2 NULL,
+    [LastError] NVARCHAR(500) NULL,
+    [LastErrorAt] DATETIME2 NULL,
     [CreatedAt] DATETIME2 NOT NULL,
     [CreatedBy] NVARCHAR(255) NOT NULL,
     [UpdatedAt] DATETIME2 NULL,
@@ -695,10 +721,11 @@ CREATE TABLE [dbo].[NotificationPreferences]
 (
     [Id] UNIQUEIDENTIFIER NOT NULL,
     [UserId] UNIQUEIDENTIFIER NOT NULL,
+    [Channel] NVARCHAR(50) NOT NULL,
     [NotificationType] NVARCHAR(50) NOT NULL,
-    [EmailEnabled] BIT NOT NULL DEFAULT 1,
-    [SmsEnabled] BIT NOT NULL DEFAULT 0,
-    [PushEnabled] BIT NOT NULL DEFAULT 0,
+    [IsEnabled] BIT NOT NULL DEFAULT 1,
+    [Frequency] NVARCHAR(50) NULL,
+    [AdditionalSettings] NVARCHAR(MAX) NULL,
     [CreatedAt] DATETIME2 NOT NULL,
     [CreatedBy] NVARCHAR(255) NOT NULL,
     [UpdatedAt] DATETIME2 NULL,
@@ -739,7 +766,7 @@ CREATE INDEX [IX_UserRoles_IsDeleted] ON [dbo].[UserRoles] ([IsDeleted]);
 CREATE UNIQUE INDEX [IX_RolePermissions_RoleId_PermissionId] ON [dbo].[RolePermissions] ([RoleId], [PermissionId]) WHERE [IsDeleted] = 0;
 CREATE INDEX [IX_RolePermissions_IsDeleted] ON [dbo].[RolePermissions] ([IsDeleted]);
 
-CREATE UNIQUE INDEX [IX_Patients_MRN] ON [dbo].[Patients] ([MRN]) WHERE [IsDeleted] = 0;
+CREATE UNIQUE INDEX [IX_Patients_MedicalRecordNumber] ON [dbo].[Patients] ([MedicalRecordNumber]) WHERE [IsDeleted] = 0;
 CREATE INDEX [IX_Patients_UserId] ON [dbo].[Patients] ([UserId]);
 CREATE INDEX [IX_Patients_IsDeleted] ON [dbo].[Patients] ([IsDeleted]);
 
@@ -771,13 +798,12 @@ CREATE INDEX [IX_Consents_IsDeleted] ON [dbo].[Consents] ([IsDeleted]);
 CREATE INDEX [IX_ConsentEvents_ConsentId] ON [dbo].[ConsentEvents] ([ConsentId]);
 CREATE INDEX [IX_ConsentEvents_IsDeleted] ON [dbo].[ConsentEvents] ([IsDeleted]);
 
-CREATE UNIQUE INDEX [IX_ShareTokens_Token] ON [dbo].[ShareTokens] ([Token]) WHERE [IsDeleted] = 0;
-CREATE INDEX [IX_ShareTokens_ConsentId] ON [dbo].[ShareTokens] ([ConsentId]);
-CREATE INDEX [IX_ShareTokens_RequestingOrganizationId] ON [dbo].[ShareTokens] ([RequestingOrganizationId]);
+CREATE UNIQUE INDEX [IX_ShareTokens_Code] ON [dbo].[ShareTokens] ([Code]) WHERE [IsDeleted] = 0;
+CREATE INDEX [IX_ShareTokens_PatientId] ON [dbo].[ShareTokens] ([PatientId]);
+CREATE INDEX [IX_ShareTokens_OrganizationId] ON [dbo].[ShareTokens] ([OrganizationId]);
 CREATE INDEX [IX_ShareTokens_IsDeleted] ON [dbo].[ShareTokens] ([IsDeleted]);
 
-CREATE UNIQUE INDEX [IX_ConnectionLinks_Code] ON [dbo].[ConnectionLinks] ([Code]) WHERE [IsDeleted] = 0;
-CREATE INDEX [IX_ConnectionLinks_OrganizationId] ON [dbo].[ConnectionLinks] ([OrganizationId]);
+CREATE INDEX [IX_ConnectionLinks_ShareTokenId] ON [dbo].[ConnectionLinks] ([ShareTokenId]);
 CREATE INDEX [IX_ConnectionLinks_IsDeleted] ON [dbo].[ConnectionLinks] ([IsDeleted]);
 
 CREATE INDEX [IX_Documents_PatientId] ON [dbo].[Documents] ([PatientId]);
@@ -792,19 +818,18 @@ CREATE INDEX [IX_DocumentShares_IsDeleted] ON [dbo].[DocumentShares] ([IsDeleted
 CREATE INDEX [IX_Appointments_PatientId] ON [dbo].[Appointments] ([PatientId]);
 CREATE INDEX [IX_Appointments_OrganizationId] ON [dbo].[Appointments] ([OrganizationId]);
 CREATE INDEX [IX_Appointments_ProviderId] ON [dbo].[Appointments] ([ProviderId]);
-CREATE INDEX [IX_Appointments_StartTime] ON [dbo].[Appointments] ([StartTime]);
+CREATE INDEX [IX_Appointments_StartDateTime] ON [dbo].[Appointments] ([StartDateTime]);
 CREATE INDEX [IX_Appointments_Status] ON [dbo].[Appointments] ([Status]);
 CREATE INDEX [IX_Appointments_IsDeleted] ON [dbo].[Appointments] ([IsDeleted]);
 
 CREATE INDEX [IX_AuditLogs_UserId] ON [dbo].[AuditLogs] ([UserId]);
-CREATE INDEX [IX_AuditLogs_EntityType_EntityId] ON [dbo].[AuditLogs] ([EntityType], [EntityId]);
+CREATE INDEX [IX_AuditLogs_Resource_ResourceId] ON [dbo].[AuditLogs] ([Resource], [ResourceId]);
 CREATE INDEX [IX_AuditLogs_Timestamp] ON [dbo].[AuditLogs] ([Timestamp]);
-CREATE INDEX [IX_AuditLogs_CorrelationId] ON [dbo].[AuditLogs] ([CorrelationId]);
 CREATE INDEX [IX_AuditLogs_IsDeleted] ON [dbo].[AuditLogs] ([IsDeleted]);
 
 CREATE INDEX [IX_IntegrationEndpoints_OrganizationId] ON [dbo].[IntegrationEndpoints] ([OrganizationId]);
 CREATE INDEX [IX_IntegrationEndpoints_IsDeleted] ON [dbo].[IntegrationEndpoints] ([IsDeleted]);
 
-CREATE UNIQUE INDEX [IX_NotificationPreferences_UserId_NotificationType] ON [dbo].[NotificationPreferences] ([UserId], [NotificationType]) WHERE [IsDeleted] = 0;
+CREATE UNIQUE INDEX [IX_NotificationPreferences_UserId_Channel_NotificationType] ON [dbo].[NotificationPreferences] ([UserId], [Channel], [NotificationType]) WHERE [IsDeleted] = 0;
 CREATE INDEX [IX_NotificationPreferences_IsDeleted] ON [dbo].[NotificationPreferences] ([IsDeleted]);
 GO

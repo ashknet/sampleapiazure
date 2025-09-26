@@ -23,6 +23,10 @@ public class DepartmentConfiguration : IEntityTypeConfiguration<Department>
         builder.Property(d => d.Specialty)
             .HasMaxLength(100);
 
+        builder.Property(d => d.IsActive)
+            .IsRequired()
+            .HasDefaultValue(true);
+
         builder.HasIndex(d => new { d.OrganizationId, d.Code })
             .IsUnique();
 

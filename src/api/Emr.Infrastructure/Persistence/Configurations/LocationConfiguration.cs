@@ -26,6 +26,10 @@ public class LocationConfiguration : IEntityTypeConfiguration<Location>
         builder.Property(l => l.Fax)
             .HasMaxLength(20);
 
+        builder.Property(l => l.IsActive)
+            .IsRequired()
+            .HasDefaultValue(true);
+
         builder.OwnsOne(l => l.Address, address =>
         {
             address.Property(a => a.Street1)
