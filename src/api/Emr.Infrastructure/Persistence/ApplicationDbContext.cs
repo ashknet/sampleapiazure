@@ -56,6 +56,20 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     {
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
 
+        // Ignore BaseEvent as it's not an entity
+        builder.Ignore<BaseEvent>();
+
+        // Configure BaseEntity
+        foreach (var entityType in builder.Model.GetEntityTypes())
+        {
+            if (entityType.ClrType.IsSubclassOf(typeof(BaseEntity)))
+            {
+                // Ignore the DomainEvents property
+                builder.Entity(entityType.ClrType)
+                    .Ignore(nameof(BaseEntity.DomainEvents));
+            }
+        }
+
         base.OnModelCreating(builder);
     }
 
