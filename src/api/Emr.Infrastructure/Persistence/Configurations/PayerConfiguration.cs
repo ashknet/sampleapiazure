@@ -28,11 +28,9 @@ public class PayerConfiguration : IEntityTypeConfiguration<Payer>
             .HasMaxLength(50);
 
         builder.Property(p => p.ContactPhone)
-            .HasColumnName("Phone")
             .HasMaxLength(20);
 
         builder.Property(p => p.ContactEmail)
-            .HasColumnName("Email")
             .HasMaxLength(255);
 
         builder.Property(p => p.Website)

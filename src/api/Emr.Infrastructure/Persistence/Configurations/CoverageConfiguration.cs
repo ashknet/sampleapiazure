@@ -38,7 +38,7 @@ public class CoverageConfiguration : IEntityTypeConfiguration<Coverage>
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(c => c.Plan)
-            .WithMany()
+            .WithMany(p => p.Coverages)
             .HasForeignKey(c => c.PlanId)
             .OnDelete(DeleteBehavior.Restrict);
     }
