@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Emr.Application.Common.Interfaces;
@@ -67,6 +68,15 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
                 // Ignore the DomainEvents property
                 builder.Entity(entityType.ClrType)
                     .Ignore(nameof(BaseEntity.DomainEvents));
+
+                // Add global query filter for soft delete
+                var parameter = Expression.Parameter(entityType.ClrType, "e");
+                var property = Expression.Property(parameter, nameof(BaseEntity.IsDeleted));
+                var filter = Expression.Lambda(
+                    Expression.Equal(property, Expression.Constant(false)),
+                    parameter);
+                
+                builder.Entity(entityType.ClrType).HasQueryFilter(filter);
             }
         }
 

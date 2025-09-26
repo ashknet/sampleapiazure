@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Logging;
 
 namespace Emr.Infrastructure.Persistence;
@@ -18,13 +19,13 @@ public class ApplicationDbContextInitialiser
     {
         try
         {
-            if (_context.Database.IsSqlServer())
-            {
-                await _context.Database.MigrateAsync();
-            }
-            else
+            if (_context.Database.IsInMemory())
             {
                 await _context.Database.EnsureCreatedAsync();
+            }
+            else if (_context.Database.IsSqlServer())
+            {
+                await _context.Database.MigrateAsync();
             }
         }
         catch (Exception ex)

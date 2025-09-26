@@ -129,6 +129,11 @@ builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
+// Log the environment and database configuration
+var logger = app.Services.GetRequiredService<ILogger<Program>>();
+logger.LogInformation("Environment: {Environment}", app.Environment.EnvironmentName);
+logger.LogInformation("UseInMemoryDatabase: {UseInMemory}", builder.Configuration.GetValue<bool>("UseInMemoryDatabase"));
+
 // Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {

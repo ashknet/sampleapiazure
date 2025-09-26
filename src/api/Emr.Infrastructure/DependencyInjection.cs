@@ -17,16 +17,24 @@ public static class DependencyInjection
     {
         services.AddScoped<AuditableEntitySaveChangesInterceptor>();
 
-        if (configuration.GetValue<bool>("UseInMemoryDatabase"))
+        var useInMemoryDatabase = configuration.GetValue<bool>("UseInMemoryDatabase");
+        
+        if (useInMemoryDatabase)
         {
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseInMemoryDatabase("EmrDb"));
+            {
+                options.UseInMemoryDatabase("EmrDb");
+                options.EnableSensitiveDataLogging();
+            });
         }
         else
         {
             services.AddDbContext<ApplicationDbContext>(options =>
+            {
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"),
-                    builder => builder.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)));
+                    builder => builder.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName));
+                options.EnableSensitiveDataLogging();
+            });
         }
 
         services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
