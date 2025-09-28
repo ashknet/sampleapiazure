@@ -1,0 +1,10 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs
+/sampleapiazure/.vs/sampleapiazure
+/sampleapiazure/obj
+/EntraApi/bin
+/EntraApi/obj
+/sampleapiazure/bin/Debug/net9.0
