@@ -39,7 +39,7 @@ builder.Services.AddSwaggerGen(options =>
                 TokenUrl = new Uri($"https://login.microsoftonline.com/{builder.Configuration["AzureAd:TenantId"]}/oauth2/v2.0/token"),
                 Scopes = new Dictionary<string, string>
                 {
-                    { $"api://{builder.Configuration["AzureAd:ClientId"]}/access_as_user", "Access API as user" }
+                    { $"api://{builder.Configuration["AzureAd:ClientId"]}/user_impersonation", "Access API as user" }
                 }
             }
         }
@@ -56,7 +56,7 @@ builder.Services.AddSwaggerGen(options =>
                     Id = "oauth2"
                 }
             },
-            new[] { $"api://{builder.Configuration["AzureAd:ClientId"]}/access_as_user" }
+            new[] { $"api://{builder.Configuration["AzureAd:ClientId"]}/user_impersonation" }
         }
     });
 });
@@ -85,6 +85,17 @@ if (app.Environment.IsDevelopment())
         options.OAuthUsePkce();
     });
 }
+
+app.UseSwaggerUI(options =>
+{
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "Azure Secure API V1");
+    options.OAuthClientId(builder.Configuration["AzureAd:ClientId"]);
+    options.OAuthUsePkce();
+
+    // Add these lines to fix the scope issue
+    options.OAuthScopes($"api://{builder.Configuration["AzureAd:ClientId"]}/user_impersonation");
+    options.OAuthAppName("Azure Secure API");
+});
 
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");

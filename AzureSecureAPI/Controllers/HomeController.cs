@@ -34,7 +34,7 @@ namespace AzureSecureAPI.Controllers
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
                     await connection.OpenAsync();
-                    using (SqlCommand command = new SqlCommand("SELECT Id, Name, Email, Department, Salary FROM Employee", connection))
+                    using (SqlCommand command = new SqlCommand("SELECT Id, Name FROM Employee", connection))
                     {
                         using (SqlDataReader reader = await command.ExecuteReaderAsync())
                         {
